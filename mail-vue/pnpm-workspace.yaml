@@ -6,3 +6,5 @@ allowBuilds:
   vue-demi: true
 overrides:
   caniuse-lite: ^1.0.30001812
+  follow-redirects: ^1.16.1
+  source-map-js: ^1.2.2
