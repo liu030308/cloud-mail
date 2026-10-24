@@ -101,12 +101,13 @@ export default defineConfig(({mode}) => {
                     manualChunks(id) {
                         if (!id.includes('node_modules')) return
                         const normalized = id.replace(/\\/g, '/')
-                        if (normalized.includes('/zrender/')) return 'charts-renderer'
-                        if (normalized.includes('/echarts/')) {
-                            if (normalized.includes('/echarts/lib/chart/')) return 'charts-types'
-                            if (normalized.includes('/echarts/lib/component/')) return 'charts-components'
-                            return 'charts-core'
-                        }
+                        // ECharts and zrender contain circular module relationships. Keeping
+                        // their core, chart, component and renderer modules in separate manual
+                        // chunks can make a component extend a class that has not been
+                        // initialised yet in production ("Class extends value undefined").
+                        // Bundle the complete chart runtime together so evaluation order stays
+                        // the same as the module graph expects.
+                        if (normalized.includes('/echarts/') || normalized.includes('/zrender/')) return 'charts'
                         // Element Plus components share internal symbols across component
                         // boundaries. Splitting them into several manual chunks can create a
                         // circular chunk graph and trigger a temporal-dead-zone error before
