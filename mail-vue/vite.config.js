@@ -55,6 +55,12 @@ export default defineConfig(({mode}) => {
                 },
                 workbox: {
                     disableDevLogs: true,
+                    // The injected registration script does not send the
+                    // SKIP_WAITING message on its own. Activate deployments
+                    // immediately so an open PWA cannot remain pinned to an
+                    // outdated, incompatible asset graph.
+                    skipWaiting: true,
+                    clientsClaim: true,
                     importScripts: ['notification-sw.js'],
                     globPatterns: [
                         'index.html',
