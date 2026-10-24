@@ -68,6 +68,11 @@ const zhTw = {
 	notAdmin: '輸入的信箱不是管理員信箱',
 	emailExistDatabase: '資料庫中已存在此信箱',
 	notConfigOss: '尚未設定物件儲存',
+	notOwner: '只能在自己的信箱新增別名',
+	resendRecipientLimit: 'Resend 分開寄送最多支援 100 位收件者',
+	resendSeparateAttachments: 'Resend 分開寄送不能附加附件',
+	noRegKeyCount: '註冊碼可用次數不足',
+	notExist: '資料不存在',
 	perms: {
 		'邮件': '郵件',
 		'邮件发送': '傳送郵件',
