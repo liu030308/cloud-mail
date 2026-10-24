@@ -415,5 +415,7 @@ const zh = {
     partialSendMsg: '已寄送 {count} 封，失敗 {failed} 封',
     saving: '郵件儲存中',
     preferredLanguage: '偏好語言',
+    analysisLoadFailed: '分析資料載入失敗，請稍後再試',
+    retry: '重新嘗試',
 }
 export default zh

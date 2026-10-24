@@ -407,6 +407,8 @@ const zh = {
     mailNotificationsDisabled: '新邮件通知已关闭',
     mailNotificationsDenied: '通知权限未允许，请在浏览器网站设置中开启',
     mailNotificationsUnsupported: '此浏览器不支持邮件通知',
+    analysisLoadFailed: '分析数据加载失败，请稍后重试',
+    retry: '重试',
     newMailNotification: '您有一封新邮件',
     remoteImagesBlocked: '已阻止 {count} 个外部图片或资源，以保护您的隐私',
     showRemoteImages: '显示外部图片',

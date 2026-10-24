@@ -2,6 +2,11 @@
   <div v-if="analysisLoading" class="analysis-loading">
     <loading/>
   </div>
+  <div v-else-if="analysisError" class="analysis-error">
+    <Icon icon="solar:chart-2-broken" width="52" height="52"/>
+    <div>{{ $t('analysisLoadFailed') }}</div>
+    <el-button type="primary" @click="loadAnalysis">{{ $t('retry') }}</el-button>
+  </div>
   <el-scrollbar v-else style="height: 100%;">
     <div class="analysis" :key="boxKey">
       <div class="number">
@@ -144,6 +149,7 @@ const sendTotal = ref(0)
 const accountTotal = ref(0)
 const userTotal = ref(0)
 const analysisLoading = ref(true)
+const analysisError = ref(false)
 
 const numberCount = reactive({
   normalReceiveTotal: 0,
@@ -207,42 +213,55 @@ let boxKey = ref(0)
 let senderPieLeft = window.innerWidth < 500 ? `${window.innerWidth - 110}` : '72%'
 let analysisDark = uiStore.dark
 
-onMounted(() => {
+onMounted(loadAnalysis)
+
+async function loadAnalysis() {
+  analysisLoading.value = true
+  analysisError.value = false
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  analysisEcharts(timeZone).then(data => {
-    receiveTotal.value = data.numberCount.receiveTotal
-    sendTotal.value = data.numberCount.sendTotal
-    accountTotal.value = data.numberCount.accountTotal
-    userTotal.value = data.numberCount.userTotal
-    numberCount.normalReceiveTotal = data.numberCount.normalReceiveTotal
-    numberCount.normalSendTotal = data.numberCount.normalSendTotal
-    numberCount.normalAccountTotal = data.numberCount.normalAccountTotal
-    numberCount.normalUserTotal = data.numberCount.normalUserTotal
-    numberCount.delReceiveTotal = data.numberCount.delReceiveTotal
-    numberCount.delSendTotal = data.numberCount.delSendTotal
-    numberCount.delAccountTotal = data.numberCount.delAccountTotal
-    numberCount.delUserTotal = data.numberCount.delUserTotal
-    senderData.value = data.receiveRatio.nameRatio.map(item => {
+  try {
+    const data = await analysisEcharts(timeZone)
+    const counts = data?.numberCount || {}
+    receiveTotal.value = Number(counts.receiveTotal) || 0
+    sendTotal.value = Number(counts.sendTotal) || 0
+    accountTotal.value = Number(counts.accountTotal) || 0
+    userTotal.value = Number(counts.userTotal) || 0
+    numberCount.normalReceiveTotal = Number(counts.normalReceiveTotal) || 0
+    numberCount.normalSendTotal = Number(counts.normalSendTotal) || 0
+    numberCount.normalAccountTotal = Number(counts.normalAccountTotal) || 0
+    numberCount.normalUserTotal = Number(counts.normalUserTotal) || 0
+    numberCount.delReceiveTotal = Number(counts.delReceiveTotal) || 0
+    numberCount.delSendTotal = Number(counts.delSendTotal) || 0
+    numberCount.delAccountTotal = Number(counts.delAccountTotal) || 0
+    numberCount.delUserTotal = Number(counts.delUserTotal) || 0
+    senderData.value = (data?.receiveRatio?.nameRatio || []).map(item => {
       return {
         name: item.name || ' ',
         value: item.total
       }
     })
 
-    userLineData.xdata = data.userDayCount.map(item => dayjs(item.date).format("M.D"));
-    userLineData.sdata = data.userDayCount.map(item => item.total)
+    const userDays = data?.userDayCount || []
+    const receiveDays = data?.emailDayCount?.receiveDayCount || []
+    const sendDays = data?.emailDayCount?.sendDayCount || []
+    userLineData.xdata = userDays.map(item => dayjs(item.date).format("M.D"));
+    userLineData.sdata = userDays.map(item => item.total)
 
-    emailColumnData.daysData = data.emailDayCount.receiveDayCount.map(item => dayjs(item.date).format("M.D"))
-    emailColumnData.receiveData = data.emailDayCount.receiveDayCount.map(item => item.total)
-    emailColumnData.sendData = data.emailDayCount.sendDayCount.map(item => item.total)
-    daySendTotal = data.daySendTotal
+    emailColumnData.daysData = receiveDays.map(item => dayjs(item.date).format("M.D"))
+    emailColumnData.receiveData = receiveDays.map(item => item.total)
+    emailColumnData.sendData = sendDays.map(item => item.total)
+    daySendTotal = Number(data?.daySendTotal) || 0
     analysisLoading.value = false
     initPicture();
     first = false
-  })
-
-})
+  } catch (error) {
+    console.error('Failed to load analysis data:', error)
+    analysisError.value = true
+  } finally {
+    analysisLoading.value = false
+  }
+}
 
 const widthChange = debounce(initPicture, 500, {
   leading: false,
@@ -743,6 +762,16 @@ function createSendGauge() {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.analysis-error {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--el-text-color-secondary);
 }
 
 .analysis {

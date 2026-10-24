@@ -298,6 +298,8 @@ const en = {
     message: 'Messages',
     language: 'Language',
     preferredLanguage: 'Default language',
+    analysisLoadFailed: 'Failed to load analytics. Please try again later.',
+    retry: 'Retry',
     totalUserAccount: '{msg}',
     sendBanned: 'Banned',
     sendInternal: 'Only internal',

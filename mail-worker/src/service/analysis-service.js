@@ -14,7 +14,12 @@ const analysisService = {
 		}
 
 		const cacheKey = this.echartsCacheKey(params);
-		const cache = await c.env.kv.get(cacheKey, { type: 'json' });
+		let cache = null;
+		try {
+			cache = await c.env.kv.get(cacheKey, { type: 'json' });
+		} catch (error) {
+			console.warn('Failed to read analytics cache; querying the database instead.', error);
+		}
 
 		if (cache) {
 			return cache;
@@ -26,7 +31,11 @@ const analysisService = {
 	async refreshEchartsCacheByKey(c, cacheKey) {
 		const params = this.echartsParamsByCacheKey(cacheKey);
 		const data = await this.queryEcharts(c, params);
-		await c.env.kv.put(cacheKey, JSON.stringify(data));
+		try {
+			await c.env.kv.put(cacheKey, JSON.stringify(data));
+		} catch (error) {
+			console.warn('Failed to update analytics cache.', error);
+		}
 		return data;
 	},
 
@@ -42,7 +51,7 @@ const analysisService = {
 
 	async queryEcharts(c, params) {
 
-		const { timeZone } = params;
+		const timeZone = this.validTimeZone(params?.timeZone);
 
 		let utcDate = toUtc().startOf('day');
 
@@ -103,7 +112,7 @@ const analysisService = {
 		};
 	},
 
-	filterEmptyDay(data, timeZone) {
+	filterEmptyDay(data = [], timeZone = 'UTC') {
 		const today = toUtc().tz(timeZone).subtract(1, 'day');
 		const previousDays = Array.from({ length: 15 }, (_, i) => {
 			return today.subtract(i, 'day').format('YYYY-MM-DD');
@@ -115,6 +124,16 @@ const analysisService = {
 			return {date: day,total}
 		})
 
+	},
+
+	validTimeZone(timeZone) {
+		if (!timeZone) return 'UTC';
+		try {
+			Intl.DateTimeFormat('en-US', { timeZone }).format();
+			return timeZone;
+		} catch {
+			return 'UTC';
+		}
 	},
 
 	echartsCacheKey(params = {}) {
