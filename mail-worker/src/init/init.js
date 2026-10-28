@@ -23,7 +23,7 @@ const dbInit = {
 			['1.7', 'v1_7DB'], ['2.0', 'v2DB'], ['2.3', 'v2_3DB'], ['2.4', 'v2_4DB'],
 			['2.5', 'v2_5DB'], ['2.6', 'v2_6DB'], ['2.7', 'v2_7DB'], ['2.8', 'v2_8DB'],
 			['2.9', 'v2_9DB'], ['3.0', 'v3_0DB'], ['3.1', 'v3_1DB'], ['3.2', 'v3_2DB'],
-			['3.3', 'v3_3DB'], ['3.4', 'v3_4DB'], ['3.4.1', 'v3_4_1DB']
+			['3.3', 'v3_3DB'], ['3.4', 'v3_4DB'], ['3.4.1', 'v3_4_1DB'], ['mailbox-provider-1', 'mailboxProviderDB']
 		];
 
 		for (const [version, method] of migrations) {
@@ -34,6 +34,13 @@ const dbInit = {
 		}
 		await settingService.refresh(c);
 		return c.text('success');
+	},
+
+	async mailboxProviderDB(c) {
+		const { results } = await c.env.db.prepare('PRAGMA table_info(account)').all();
+		if (!results.some(column => column.name === 'send_provider')) {
+			await c.env.db.prepare("ALTER TABLE account ADD COLUMN send_provider TEXT NOT NULL DEFAULT 'auto'").run();
+		}
 	},
 
 	async v3_4DB(c) {

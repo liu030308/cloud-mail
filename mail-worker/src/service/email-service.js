@@ -10,6 +10,7 @@ import BizError from '../error/biz-error';
 import emailUtils from '../utils/email-utils';
 import fileUtils from '../utils/file-utils';
 import { Resend } from 'resend';
+import { selectSendProvider } from '../utils/send-provider';
 import attService from './att-service';
 import { parseHTML } from 'linkedom';
 import userService from './user-service';
@@ -410,11 +411,13 @@ const emailService = {
 
 		const domain = emailUtils.getDomain(accountRow.email);
 		const resendToken = resendTokens[domain];
-		const useCloudflareEmail = !!c.env.email && !resendToken;
-
-		//如果接收方存在站外邮箱，又没有发信服务
-		if (!useCloudflareEmail && !resendToken && !allInternal) {
-			throw new BizError(t('noSendProvider'));
+		let useCloudflareEmail = false;
+		if (!allInternal) {
+			try {
+				useCloudflareEmail = selectSendProvider(accountRow.sendProvider || 'auto', resendToken, c.env.email) === 'cloudflare';
+			} catch (error) {
+				throw new BizError(t(error.message));
+			}
 		}
 
 		//没有发件人名字自动截取
@@ -471,7 +474,7 @@ const emailService = {
 			}
 		};
 
-		// 已設定 Resend 的網域優先使用 Resend，避免受 CF 目的地址驗證限制。
+		// 站內直接投遞；站外使用此信箱選定的通道。
 		let deliveries;
 		if (allInternal) {
 			deliveries = this.sendInternal(c, context);

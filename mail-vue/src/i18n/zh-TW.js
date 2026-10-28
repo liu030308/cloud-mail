@@ -1,4 +1,7 @@
 const zh = {
+    sendProvider: '寄送通道',
+    sendProviderAuto: '跟隨系統預設（優先 Resend）',
+    sendProviderHelp: '依寄件信箱選擇通道。Resend 需設定網域 API Key；Cloudflare 仍受目的地址驗證限制。',
     inbox: '收件匣',
     drafts: '草稿匣',
     sent: '已傳送',

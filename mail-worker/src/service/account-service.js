@@ -12,8 +12,16 @@ import turnstileService from './turnstile-service';
 import roleService from './role-service';
 import { t } from '../i18n/i18n';
 import verifyRecordService from './verify-record-service';
+import { SEND_PROVIDERS } from '../utils/send-provider';
 
 const accountService = {
+	async setSendProvider(c, params, userId) {
+		const { accountId, sendProvider } = params;
+		if (!SEND_PROVIDERS.includes(sendProvider)) throw new BizError(t('invalidSendProvider'));
+		const row = await this.selectById(c, accountId);
+		if (!row || row.userId !== userId) throw new BizError(t('noUserAccount'), 403);
+		await orm(c).update(account).set({ sendProvider }).where(and(eq(account.accountId, accountId), eq(account.userId, userId))).run();
+	},
 
 	async add(c, params, userId) {
 

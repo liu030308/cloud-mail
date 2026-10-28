@@ -1,5 +1,9 @@
 import http from '@/axios/index.js'
 
+export function accountSetSendProvider(accountId, sendProvider) {
+    return http.put('/account/setSendProvider', {accountId, sendProvider})
+}
+
 export function accountList(accountId, size, lastSort) {
     return http.get('/account/list', {params: {accountId, size, lastSort}});
 }

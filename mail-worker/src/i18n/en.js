@@ -1,4 +1,7 @@
 const en = {
+	invalidSendProvider: 'Invalid sending provider',
+	resendNotConfigured: 'Resend API key is not configured for this sender domain',
+	cloudflareNotConfigured: 'Cloudflare email binding is not configured',
 	IncorrectPwd: 'Incorrect password',
 	addAccountDisabled: 'Add Email Address feature is disabled',
 	regDisabled: 'Sign up is disabled',

@@ -1,4 +1,7 @@
 const zh = {
+	invalidSendProvider: '发送渠道不正确',
+	resendNotConfigured: '此发件域名尚未设置 Resend API Key',
+	cloudflareNotConfigured: '尚未设置 Cloudflare 发信绑定',
 	IncorrectPwd: '密码输入错误',
 	addAccountDisabled: '添加邮箱功能已关闭',
 	regDisabled: '注册功能已关闭',

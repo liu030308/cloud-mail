@@ -1,4 +1,7 @@
 const zhTw = {
+	invalidSendProvider: '寄送通道不正確',
+	resendNotConfigured: '此寄件網域尚未設定 Resend API Key',
+	cloudflareNotConfigured: '尚未設定 Cloudflare 寄信綁定',
 	IncorrectPwd: '密碼輸入錯誤',
 	addAccountDisabled: '新增信箱功能已關閉',
 	regDisabled: '註冊功能已關閉',

@@ -1,4 +1,7 @@
 const en = {
+	sendProvider: 'Sending provider',
+	sendProviderAuto: 'System default (Resend first)',
+	sendProviderHelp: 'Choose a provider for this mailbox. Resend requires a domain API key; Cloudflare destination verification restrictions still apply.',
     inbox: 'Inbox',
     compose: 'Compose',
     drafts: 'Drafts',

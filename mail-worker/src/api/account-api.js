@@ -3,6 +3,11 @@ import accountService from '../service/account-service';
 import result from '../model/result';
 import userContext from '../security/user-context';
 
+app.put('/account/setSendProvider', async (c) => {
+	await accountService.setSendProvider(c, await c.req.json(), userContext.getUserId(c));
+	return c.json(result.ok());
+});
+
 app.get('/account/list', async (c) => {
 	const list = await accountService.list(c, c.req.query(), userContext.getUserId(c));
 	return c.json(result.ok(list));

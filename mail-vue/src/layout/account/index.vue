@@ -25,6 +25,7 @@
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item v-if="hasPerm('email:send')" @click="openSetName(item)">{{ $t('rename') }}</el-dropdown-item>
+                    <el-dropdown-item v-if="hasPerm('email:send')" @click="openProvider(item)">{{ $t('sendProvider') }}</el-dropdown-item>
                     <el-dropdown-item v-if="item.accountId !== userStore.user.account.accountId" @click="setAsTop(item, index)">{{ $t('pin') }}</el-dropdown-item>
                     <el-dropdown-item v-if="item.accountId !== userStore.user.account.accountId && hasPerm('account:delete')"
                                       @click="remove(item)">{{ $t('delete') }}
@@ -116,6 +117,19 @@
         <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed', {action: $t('add')}) }}</span>
       </div>
     </el-dialog>
+    <el-dialog v-model="providerShow" :title="$t('sendProvider')" width="min(90vw, 440px)">
+      <p>{{ providerAccount?.email }}</p>
+      <el-select v-model="providerValue" style="width: 100%" :aria-label="$t('sendProvider')">
+        <el-option value="auto" :label="$t('sendProviderAuto')"/>
+        <el-option value="resend" label="Resend"/>
+        <el-option value="cloudflare" label="Cloudflare"/>
+      </el-select>
+      <p>{{ $t('sendProviderHelp') }}</p>
+      <template #footer>
+        <el-button @click="providerShow = false">{{ $t('cancel') }}</el-button>
+        <el-button type="primary" :loading="providerSaving" @click="saveProvider">{{ $t('save') }}</el-button>
+      </template>
+    </el-dialog>
     <el-dialog v-model="setNameShow" :title="$t('changeUserName')">
       <div class="container">
         <el-input v-model="accountName" type="text" :placeholder="$t('username')" autocomplete="off" @keyup.enter="setName">
@@ -135,6 +149,7 @@ import {
   accountAdd,
   accountDelete,
   accountSetName,
+  accountSetSendProvider,
   accountSetAllReceive,
   accountSetAsTop
 } from "@/request/account.js";
@@ -163,6 +178,33 @@ const loading = ref(false)
 const followLoading = ref(false);
 const verifyShow = ref(false)
 const setNameShow = ref(false)
+const providerShow = ref(false)
+const providerSaving = ref(false)
+const providerAccount = ref(null)
+const providerValue = ref('auto')
+
+function openProvider(item) {
+  providerAccount.value = item
+  providerValue.value = item.sendProvider || 'auto'
+  providerShow.value = true
+}
+
+async function saveProvider() {
+  if (providerSaving.value) return
+  providerSaving.value = true
+  try {
+    const item = providerAccount.value
+    await accountSetSendProvider(item.accountId, providerValue.value)
+    item.sendProvider = providerValue.value
+    if (accountStore.currentAccountId === item.accountId) {
+      accountStore.currentAccount.sendProvider = providerValue.value
+    }
+    providerShow.value = false
+    ElMessage.success(t('setSuccess'))
+  } finally {
+    providerSaving.value = false
+  }
+}
 const setNameLoading = ref(false)
 const accountName = ref(null)
 const addRef = ref({})
