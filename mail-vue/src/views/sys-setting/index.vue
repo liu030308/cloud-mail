@@ -193,7 +193,7 @@
                 <div v-if="setting.hasCfEmail">
                   <span>{{ $t('enabled') }}</span>
                 </div>
-                <div v-else>
+                <div>
                   <el-button class="opt-button" style="margin-top: 0" @click="openResendList" size="small"
                              type="primary">
                     <Icon icon="ic:round-list" width="18" height="18"/>

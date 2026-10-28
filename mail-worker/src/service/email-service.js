@@ -410,7 +410,7 @@ const emailService = {
 
 		const domain = emailUtils.getDomain(accountRow.email);
 		const resendToken = resendTokens[domain];
-		const useCloudflareEmail = !!c.env.email;
+		const useCloudflareEmail = !!c.env.email && !resendToken;
 
 		//如果接收方存在站外邮箱，又没有发信服务
 		if (!useCloudflareEmail && !resendToken && !allInternal) {
@@ -471,7 +471,7 @@ const emailService = {
 			}
 		};
 
-		// 全部站内收件人走本地投递；存在站外收件人时优先 CF，其次 Resend。
+		// 已設定 Resend 的網域優先使用 Resend，避免受 CF 目的地址驗證限制。
 		let deliveries;
 		if (allInternal) {
 			deliveries = this.sendInternal(c, context);
